@@ -1,0 +1,12 @@
+
+
+ - convert images + labels (XML) --> CSV --> TF records
+
+ - set up configuration file
+
+ - train the model
+
+ - export frozen inference graph from the training checkpoint
+
+ - use graph to detect objects in the images 
+

@@ -1,0 +1,42 @@
+
+
+----------  TRAIN  ----------
+python3 train.py --logtostderr --train_dir=/disk/object_detection/RUNS/jf_tech/1_0_45 --pipeline_config_path=training/jf_tech/1_0_45.config
+
+
+----------  FREEZE  ----------
+
+python3 export_inference_graph.py --input_type image_tensor --pipeline_config_path training/jf_tech/3_0_45.config --trained_checkpoint_prefix /disk/object_detection/RUNS/jf_tech/3_0_45/model.ckpt-40000 --output_directory /disk/object_detection/RUNS/jf_tech/3_0_45/frozen40
+
+
+----------  EVALUATE  ----------
+
+python3 evaluate.py --inference_graph_dir=RUNS/jf_tech/1_0_45/frozen40/ --print_thr 0.1 --test_dir test_images1/ --out_dir results/jf_tech/1_0_45/ --id "40"
+
+
+----------  NMS  ----------
+
+python lib/nms.py --path_in ../results/medusas/jf_tech/1_0_45/txt40/ --path_out ../results/medusas/jf_tech/1_0_45/nms40 --thr 0.4
+
+
+----------  GT TO TXT  ----------
+
+python lib/xml_to_txt.py --path_in ../gt/jf_tech/gt1/xml/ --path_out ../gt/jf_tech/gt1/
+
+
+----------  PASCAL VOC  ----------
+
+python pascalvoc.py -tiou 0.5 -tconf 0 -gtformat=xyrb -detformat=xyrb -gt ../gt/jf_tech/gt1 -det ../results/medusas/jf_tech/1_0_45/nms40/ -np -sp ../results/medusas/jf_tech/1_0_45/ -sn results40
+
+
+----------  CTHR  ----------
+
+python lib/cthr.py --path_in ../results/medusas/jf_tech/1_0_45/nms40/ --path_out ../results/medusas/jf_tech/1_0_45/cthr40 --cthr 0.97
+
+
+----------  PRINTBB  ----------
+
+python lib/printbb.py --path_im ../gt/jf_tech/im1 --path_txt ../results/medusas/jf_tech/1_0_45/cthr40/ --path_out ../results/medusas/jf_tech/1_0_45/print40
+
+
+

@@ -1,0 +1,79 @@
+
+
+make .xml with labelImg or whatever
+
+set folders: images/train, images/test
+
+run xml_to_csv.py
+
+in generate_tfrecord.py change: if row_label == '"label"':
+
+run generate_tfrecord.py
+
+
+Things to change in order to exec a different model/config/dataset/...
+
+folders:
+
+  - models/research/object_detection
+      - data/ .record, .csv, object-detection.pbtxt     # folder with the records and cvs generated and the labels of the objects
+      - "model_folder"/			      		# add folder with the downloaded model
+      - images/test,train (image + xml)	     		# add folder with the images and xml annotations
+      - training/"model".config             		# model config
+      - export_inference_graph.py -> "folder/output"/     # folder to save the frozen inference graph after the training is done
+      - test_images/ 			      		# add images to test on the jupyter notebook
+
+scripts:
+
+  - aux/folder/generate_tfrecord.py -> class_text_to_int -> row_label = "xxx" return 1, else if row_label == "yyy" return 2 # set accordingly to the dictionary
+
+  - models/research/object_detection/training/"model".config:    # change the model configuration
+      - num_classes: "xx"
+      - batch_size: "xx"
+      - fine_tune_checkpoint: "model"/model.ckpt
+
+      - train_input_reader
+          input_path: "PATH_TO_BE_CONFIGURED/mscoco_train.record-?????-of-00100"
+          label_map_path: "PATH_TO_BE_CONFIGURED/mscoco_label_map.pbtxt"
+
+      - eval_input_reader
+          input_path: "PATH_TO_BE_CONFIGURED/mscoco_val.record-?????-of-00010"
+          label_map_path: "PATH_TO_BE_CONFIGURED/mscoco_label_map.pbtxt"
+
+
+  - models/research/object_detection/data/object-detection.pbtxt -> deffine dictionary
+
+
+
+export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
+
+python3 train.py --logtostderr --train_dir=RUNS/multi/2_mix_40/ --pipeline_config_path=training/faster_rcnn_inception_resnet_v2_atrous_coco_2_mix_40k.config
+
+tensorboard --logdir='training'
+
+python3 export_inference_graph.py --input_type image_tensor --pipeline_config_path training/faster_rcnn_inception_resnet_v2_atrous_coco_2_mix_40k.config --trained_checkpoint_prefix RUNS/multi/2_mix_40/model.ckpt-40000 --output_directory RUNS/multi/2_mix_40/frozen40
+
+python3 evaluate.py --inference_graph_dir=RUNS/multi/2_mix_40/frozen40/ --print_thr 0.1 --test_dir test_images/ --out_dir results/multi/2mix40/ --id "juntos"
+
+
+   ------------------------------------
+   useful tips
+   ------------------------------------
+
+
+  - if (ImportError: no module named 'xxxxx'):
+       from: models/research -> export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
+
+  - if (error: failed to alocate memory):
+	watch -n 1 free -n
+	sudo sync && sudo sysctl -w vm.drop_caches=3
+
+    elseif (previous did not work)
+	close terminal, open new one
+
+    else
+	restart pc
+
+
+
+
