@@ -1,17 +1,21 @@
-# jf_object_detection
-jellyfish object detection
+# Jellyfish object detection
 
-- README: file index, explaining what every file and folder contains
+This repository aims to provide the necesary tools and knowledge to operate our jellyfish object detection and monitoring algorithm. The following sections provide a step by step explaination on how to:
 
- - installation: information about how to set uo your computer and install the tensorflow object detection API, marked with "#" the necessary changes
+1 - Train an object detection neural network.
 
- - installed: list of packages, drivers, controllers, programs, ... that need to be installed
+2 - Use an already trained model to infer images and obtain detections.
 
- - adapt: instructions on how to evaluate a different models, configurations or datasets with the tensorflow object detection API
+3 - Optimize the obtained detections.
 
- - workflow: brief description on how the f-rcnn implementation works
+4 - Apply our quantification and monitoring algorithm to a video sequence
 
-- XMLtemplate: example on how the format of the xml files representing the ground truth has to be
+# 1 - Train an object detection neural network.
 
-Dataset: https://zenodo.org/record/3537652#.XclltcYh3CI
-Model: https://holder.com
+To train an object detection neural network from scratch, we reference to the Google object detection API, wich uses Tensorflow: https://github.com/tensorflow/models/tree/master/research/object_detection. 
+
+We provide our training data in the following link: https://zenodo.org/record/3537652#.XclltcYh3CI
+
+Otherwise, if you want to aply transfer learning over an already trained networ on the provide dataset, or use it as is, we provide our already trained best model: https://holder.com
+
+
