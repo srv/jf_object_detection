@@ -14,7 +14,7 @@ To train an object detection neural network from scratch, we refer to the Google
 
 We provide our training data in the following link: https://zenodo.org/record/3545785#.XdJ2XsYh3CI.
 
-Otherwise, if you want to apply transfer learning over our already trained network, or use it as is, we provide our already trained best model as a checkpoint (for retraining purposes) and as a frozen graph (.pb ready to deploy): https://zenodo.org/record/3544298#.Xc_IUMYh3CI.
+Otherwise, if you want to apply transfer learning over our already trained network, or use it as is, we provide our already trained best model as a checkpoint (for retraining purposes) and as a frozen graph (.pb ready to deploy): https://zenodo.org/record/3549367#.XdZJVcYh3CI.
 
 The steps to perform the network inference and obtain the detections of images from a frozen model are also provided in the Google object detection API repository. Although, we suggest swapping the evaluaate.py script for the one provided in this repository, as it will generate a txt file for each analysed image, indicating the bounding box, class, and confidence of the detected instances. This txt file will later be used to optimize the detections and generate de quantification.
 
