@@ -35,14 +35,14 @@ def getPredictions(file):
 
 def main():
 
-    # python quantify.py --path_in "test" --path_out "" --cthr 0.5 --print_opt 1  --wsize 8 --wover 0.5
+    # python quantify.py --path_in "test/" --path_out "out/" --cthr 0.2 --print_opt 1  --wsize 12 --wover 0.25
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_in', help='txt input directory.')
     parser.add_argument('--path_out', default="", help='txt output directory.')
-    parser.add_argument('--cthr', default=0, help='if eval 0, cthr to get quantification')
-    parser.add_argument('--print_opt', default=0, help='0 -> no print, 1 -> print quant (and gt)')
-    parser.add_argument('--wsize', default=8, help='window size')
+    parser.add_argument('--cthr', default=0,1, help='if eval 0, cthr to get quantification')
+    parser.add_argument('--print_opt', default=1, help='0 -> no print, 1 -> print quant (and gt)')
+    parser.add_argument('--wsize', default=12, help='window size')
     parser.add_argument('--wover', default=0.25, help='window overlap')
     parsed_args = parser.parse_args(sys.argv[1:])
 
@@ -52,15 +52,6 @@ def main():
     print_opt = int(parsed_args.print_opt)
     wsize = int(parsed_args.wsize)
     wover = float(parsed_args.wover)
-
-    '''
-    path_in = "results/medusas/jf_tech/3_full_2_mix/nmsv1/"
-    path_out = "results/medusas/jf_tech/3_full_2_mix/"
-    cthr = 0.3
-    print_opt = 1
-    wsize = 12
-    wover = 0.25
-    '''
 
     wover_ip = int(wsize-(wover*wsize))
 
