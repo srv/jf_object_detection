@@ -6,9 +6,11 @@ import matplotlib.pyplot as plt
 import sys
 import argparse
 import numpy as np
-import scipy.misc
+# import scipy.misc
 from skimage.util import *
 from skimage.util import view_as_windows
+from natsort import natsorted
+import pandas as pd
 
 
 def getPredictions(file):
@@ -35,34 +37,30 @@ def getPredictions(file):
 
 def main():
 
-    # python quantify.py --path_in "test/" --path_out "out/" --cthr 0.2 --print_opt 1  --wsize 12 --wover 0.25
+    # python quantify.py --path_in "" --path_gt "" --wsize 25 --wover 0.5
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--path_in', help='txt input directory.')
-    parser.add_argument('--path_out', default="", help='txt output directory.')
-    parser.add_argument('--cthr', default=0,1, help='if eval 0, cthr to get quantification')
-    parser.add_argument('--print_opt', default=1, help='0 -> no print, 1 -> print quant (and gt)')
-    parser.add_argument('--wsize', default=12, help='window size')
+    parser.add_argument('--path_gt', default="", help='gt file path.')
+    parser.add_argument('--wsize', default=8, help='window size')
     parser.add_argument('--wover', default=0.25, help='window overlap')
     parsed_args = parser.parse_args(sys.argv[1:])
 
     path_in = parsed_args.path_in
-    path_out = parsed_args.path_out
-    cthr = float(parsed_args.cthr)
-    print_opt = int(parsed_args.print_opt)
+    path_gt = parsed_args.path_gt
     wsize = int(parsed_args.wsize)
     wover = float(parsed_args.wover)
 
     wover_ip = int(wsize-(wover*wsize))
 
-    predictions_list = list()
+    gt = pd.read_excel(io=path_gt)
+    gt = gt.values
 
-    if path_out != "":
-        if not os.path.exists(path_out):
-            os.makedirs(path_out)
+    predictions_list = list()
+    sim_list = list()
 
     # read predictions
-    for file in sorted(os.listdir(path_in)):
+    for file in natsorted(os.listdir(path_in)):
 
         if re.search("\.(txt)$", file):  # if the file is a txt
 
@@ -84,66 +82,81 @@ def main():
     for i, name in enumerate(u_classes):
         dict_classes[u_classes[i]] = i
 
-    # delete predicions with confidence < cthr
-    predictions_cthr_list = list()
+    for idx in range(99):
 
-    for i, predictions in enumerate(predictions_list):
-        for j, pred in enumerate(predictions):
-            if pred[1] < cthr:
-                predictions = predictions[:j]
-                break
-        predictions_cthr_list.append(predictions)
+        cthr = idx/100
+        # delete predicions with confidence < cthr
+        predictions_cthr_list = list()
 
-    # get number of isntances of each class for each image
-    preds_count = np.zeros((len(predictions_list), n_classes), dtype=int)
+        for i, predictions in enumerate(predictions_list):
+            for j, pred in enumerate(predictions):
+                if pred[1] < cthr:
+                    predictions = predictions[:j]
+                    break
+            predictions_cthr_list.append(predictions)
 
-    for i, predictions in enumerate(predictions_cthr_list):
-        for j, pred in enumerate(predictions):
-            c = pred[0]
-            preds_count[i, dict_classes[c]] = preds_count[i, dict_classes[c]] + 1
+        # get number of isntances of each class for each image
+        preds_count = np.zeros((len(predictions_list), n_classes), dtype=int)
 
-    # apply windowing techniques
-    n_counts = view_as_windows(np.choose(0, preds_count.T), wsize, step=wover_ip).shape[0]
-    preds_count_win = np.zeros((n_counts, n_classes), dtype=int)
+        for i, predictions in enumerate(predictions_cthr_list):
+            for j, pred in enumerate(predictions):
+                c = pred[0]
+                preds_count[i, dict_classes[c]] = preds_count[i, dict_classes[c]] + 1
 
-    for i, name in enumerate(u_classes):
-        counts = np.choose(i, preds_count.T)
-        counts_win = view_as_windows(counts, wsize, step=wover_ip)
+        # apply windowing techniques
+        n_counts = view_as_windows(np.choose(0, preds_count.T), wsize, step=wover_ip).shape[0]
+        preds_count_win = np.zeros((n_counts, n_classes), dtype=int)
 
-        for j, win in enumerate(counts_win):
-            values, rep = np.unique(win, return_counts=True)
-            rep = np.flip(rep, 0)            # flip to give priority go higher number, as it is
-            values = np.flip(values, 0)      # more usual that the network has FN rather than FP
-            val = values[np.argmax(rep, 0)]  # and argmax chooses the first element in case of tie
-            preds_count_win[j, i] = val
-
-    # expand window quantification to all initial information points
-    ip = n_counts*wover_ip+(wsize-wover_ip)
-    quantifications = np.zeros((ip, n_classes), dtype=int)
-
-    for i, name in enumerate(u_classes):
-        counts_win = np.choose(i, preds_count_win.T)
-        quant = np.repeat(counts_win, wover_ip)
-        for j in range(wsize-wover_ip):
-            quant = np.insert(quant, 0, quant[0])
-        quantifications[..., i] = quant
-
-    path_save_csv = os.path.join(path_out, "quant"+"_"+str(wsize)+"_"+str(wover)+"_"+str(cthr)+"_"+".csv")
-    np.savetxt(path_save_csv, quantifications)  # save quantifications to csv
-
-    if print_opt == 1:
-
-        fig = plt.figure()
-        plt.xlabel('information points')
-        plt.ylabel('jellyfish counts')
-        x = np.arange(0, quantifications.shape[0] , 1, dtype=int)
         for i, name in enumerate(u_classes):
-            plt.plot(x, quantifications[..., i], label=name)
+            counts = np.choose(i, preds_count.T)
+            counts_win = view_as_windows(counts, wsize, step=wover_ip)
 
-        plt.legend(loc='upper right', frameon=False)
+            for j, win in enumerate(counts_win):
+                values, rep = np.unique(win, return_counts=True)
+                rep = np.flip(rep, 0)            # flip to give priority go higher number, as it is
+                values = np.flip(values, 0)      # more usual that the network has FN rather than FP
+                val = values[np.argmax(rep, 0)]  # and argmax chooses the first element in case of tie
+                preds_count_win[j, i] = val
 
-        path_save_plot = os.path.join(path_out, "quant"+"_"+str(wsize)+"_"+str(wover)+"_"+str(cthr)+"_"+".png")
-        plt.savefig(path_save_plot)  # save quantifications to plot
+        # expand window quantification to all initial information points
+        ip = n_counts*wover_ip+(wsize-wover_ip)
+        quantifications = np.zeros((ip, n_classes), dtype=int)
+
+        for i, name in enumerate(u_classes):
+            counts_win = np.choose(i, preds_count_win.T)
+            quant = np.repeat(counts_win, wover_ip)
+            for j in range(wsize-wover_ip):
+                quant = np.insert(quant, 0, quant[0])
+            quantifications[..., i] = quant
+
+
+        last_del = gt.shape[0] - quantifications.shape[0]
+        gt2 = gt
+        if last_del>0:
+            gt2 = gt[:-last_del, :]
+
+        last_del = quantifications.shape[0] - gt.shape[0]
+        quantifications2 = quantifications
+        if last_del>0:
+            quantifications2 = quantifications[:-last_del, :]
+
+        eq = np.equal(gt2,quantifications2)
+        compare = np.logical_and(eq[:,0], eq[:,1], eq[:,2])
+
+        similarity  = (np.count_nonzero(compare)/compare.shape[0])*100
+        sim_list.append(similarity)
+
+    print(sim_list)
+    best_sim = max(sim_list)
+    max_ind = max([i for i, x in enumerate(sim_list) if x == best_sim])
+
+    print("max similarity: " + str(best_sim) + "at ctrh: " + str(max_ind))
+
+    z = 1
+
+
+
+
 
 
 main()
