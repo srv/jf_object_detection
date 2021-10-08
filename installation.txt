@@ -1,0 +1,81 @@
+
+-------------------------------------
+SET SYSTEM
+-------------------------------------
+
+https://www.youtube.com/watch?v=rILtTjrecQc
+
+
+Complete tutorial on how to install GPU version of Tensorflow on Ubuntu 16.04 LTS
+
+Step - 1
+# ensure system is updated and has basic build tools
+sudo apt-get update
+sudo apt-get --assume-yes upgrade
+sudo apt-get --assume-yes install tmux build-essential gcc g++ make binutils
+sudo apt-get --assume-yes install software-properties-common
+
+
+Step - 2
+# Install your nvidia graphics driver. 
+# Search for additional drivers in menu and open it. 
+# Wait for minute and select nvidia driver and hit apply and restart.
+
+Step - 3
+# Google cuda toolkit archive. Download cuda-8.0 .deb package and install it					## CUDA 8, NEEDS REGISTRATION ON NVIDIA ##
+sudo dpkg -i cuda-repo-ubuntu1604-8-0-local-ga2_8.0.61-1_amd64.deb (this is the deb file you've downloaded)
+sudo apt-get update
+sudo apt-get install cuda
+
+export PATH=/usr/local/cuda-8.0/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+
+Step - 4
+# Download cudnn v5.1 and run following command  								## CUDNN 6 ##
+tar -xzvf cudnn-8.0-linux-x64-v5.1.tgz
+sudo cp cuda/include/cudnn.h /usr/local/cuda/include
+sudo cp cuda/lib64/libcudnn* /usr/local/cuda/lib64
+sudo chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
+
+Step - 5
+# Prepare TensorFlow dependencies
+sudo apt-get install libcupti-dev
+
+Step - 6
+# Download Python and then tensorflow gpu
+bash Anaconda3-4.4.0-Linux-x86_64.sh     									## ANACONDA 5.0.1, PYTHON 3.6.3 ##
+pip install tensorflow-gpu==1.2		  									## TENSORFLOW 1.4! ##
+
+Step - 7
+# Check gpu has been step properly or not
+# Download this git repo https://github.com/tensorflow/models and unzip it.
+python models-master/tutorials/image/imagenet/classify_image.py
+or
+python models-master/tutorials/image/cifar10/cifar10_train.py
+
+
+-------------------------------------
+TENSORFLOW API INSTALLATION
+-------------------------------------
+
+https://www.youtube.com/watch?v=COlbP62-B-U
+
+# protoc 3.4 
+  windows:  https://github.com/google/protobuf/releases
+  ubuntu https://gist.github.com/sofyanhadia/37787e5ed098c97919b8c593f0ec44d8
+
+# ref to images is images/test or images/traing (on script generate_tfrecord.py)
+
+# object-detection.pbtxt into data not training
+
+
+# if (ImportError: no module named 'xxxxx'):
+#    from models/research: export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
+
+
+
+
+
+
+
+

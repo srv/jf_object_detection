@@ -33,6 +33,8 @@ flags.DEFINE_string('print_thr', '', 'Printing confidence threshold.')
 flags.DEFINE_string('test_dir', '', 'test images folder path.')
 flags.DEFINE_string('out_dir', 'results', 'output folder path.')
 flags.DEFINE_string('id', '', 'identifier.')
+flags.DEFINE_string('n_classes', '', 'number of classes.')
+flags.DEFINE_string('labels_file', '', 'path to the class label file')
 
 FLAGS = flags.FLAGS
 
@@ -47,9 +49,9 @@ print_thr = float(FLAGS.print_thr)
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('data', 'object-detection.pbtxt')
+PATH_TO_LABELS = FLAGS.labels_file
 
-NUM_CLASSES = 3
+NUM_CLASSES = int(FLAGS.n_classes)
 
 # --- Load a (frozen) Tensorflow model into memory. ---
 
