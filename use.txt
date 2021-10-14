@@ -45,38 +45,13 @@ scripts:
   - models/research/object_detection/data/object-detection.pbtxt -> deffine dictionary
 
 
+------- CALLS ------- 
 
 export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
 
-python3 train.py --logtostderr --train_dir=RUNS/multi/2_mix_40/ --pipeline_config_path=training/faster_rcnn_inception_resnet_v2_atrous_coco_2_mix_40k.config
+python3 train.py --logtostderr --train_dir=RUNS/jf_bio/bal_art/1/ --pipeline_config_path=training/jf_bio/bal_art_1.config
 
 tensorboard --logdir='training'
-
-python3 export_inference_graph.py --input_type image_tensor --pipeline_config_path training/faster_rcnn_inception_resnet_v2_atrous_coco_2_mix_40k.config --trained_checkpoint_prefix RUNS/multi/2_mix_40/model.ckpt-40000 --output_directory RUNS/multi/2_mix_40/frozen40
-
-python3 evaluate.py --inference_graph_dir=RUNS/multi/2_mix_40/frozen40/ --print_thr 0.1 --test_dir test_images/ --out_dir results/multi/2mix40/ --id "juntos"
-
-
-------- TIPS -------
-
-
-  - if (ImportError: no module named 'xxxxx'):
-       from: models/research -> export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
-
-  - if (error: failed to alocate memory):
-	watch -n 1 free -n
-	sudo sync && sudo sysctl -w vm.drop_caches=3
-
-    elseif (previous did not work)
-	close terminal, open new one
-
-    else
-	restart pc
-
-
-------- CALLS ------- 
-
-python3 train.py --logtostderr --train_dir=RUNS/jf_bio/bal_art/1/ --pipeline_config_path=training/jf_bio/bal_art_1.config
 
 python3 export_inference_graph.py --input_type image_tensor --pipeline_config_path=training/jf_bio/bal_art_1.config --trained_checkpoint_prefix RUNS/jf_bio/bal_art/1/model.ckpt-40000 --output_directory RUNS/jf_bio/bal_art/1/frozen
 
@@ -94,5 +69,17 @@ python cthr.py --path_in /home/miguel/models/research/object_detection/results/j
 
 python /home/miguel/Desktop/object_detection_utils/metrics/lib/printbb.py --path_im test_images/jf_bio/bal_art/1/ --path_txt results/jf_bio/bal_art/1/cthr1/ --path_out results/jf_bio/bal_art/1/output_cthr1/
 
+------- TIPS -------
 
+  - if (ImportError: no module named 'xxxxx'):
+       from: models/research -> export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
 
+  - if (error: failed to alocate memory):
+	watch -n 1 free -n
+	sudo sync && sudo sysctl -w vm.drop_caches=3
+
+    elseif (previous did not work)
+	close terminal, open new one
+
+    else
+	restart pc
