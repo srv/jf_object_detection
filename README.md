@@ -12,7 +12,7 @@ This repository aims to provide the necessary tools and knowledge to operate our
 
 To train an object detection neural network from scratch, we refer to the Google object detection API, which uses Tensorflow: https://github.com/tensorflow/models/tree/196d173a24613a045e641ef21ba9863c77bd1e2f/research/object_detection.
 
-We provide our training data in the following link: https://zenodo.org/record/3545785#.XdJ2XsYh3CI.
+We provide our training and test data in the following link: https://zenodo.org/record/6832131#.Ys_WliaxXCI.
 
 Otherwise, if you want to apply transfer learning over our already trained network, or use it as is, we provide our already trained best model as a checkpoint (for retraining purposes) and as a frozen graph (.pb ready to deploy): https://zenodo.org/record/3549367#.XdZJVcYh3CI.
 
